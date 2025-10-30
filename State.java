@@ -4,13 +4,11 @@
 */
 
 public class State {
-    private int id; // Unique ID for state
-    private boolean isStart; // True if start state
-    private boolean isAccept; // True if accept state
+    private int id; // unique ID for state
+    private boolean isStart; // true if start state
+    private boolean isAccept; // true if accept state
 
-    /*
-    *Contructs new state with given ID, start, and accept status.
-     */
+    // contructs new state with given ID, start, and accept status
     public State (int id, boolean isStart, boolean isAccept) {
         this.id = id;
         this.isStart = isStart;

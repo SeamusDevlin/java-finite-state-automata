@@ -24,7 +24,7 @@ public class DFA extends FSA {
     @Override
     public void addTransition(int fromId, int toId, char symbol) {
         // DFAs cannot have epsilon transitions
-        if (symbol == '\0') {
+        if (symbol == FSA.EPSILON || symbol == 'ε' || symbol == '\u03B5') {
             throw new IllegalArgumentException("DFA cannot have epsilon transitions");
         }
         
@@ -50,23 +50,50 @@ public class DFA extends FSA {
         super.addTransition(fromId, toId, symbol);
     }
     
+    /**
+     * DFA already is a DFA, so return itself
+     * @return this DFA instance
+     */
     @Override
-    public boolean accepts(String input) {
-        State current = getStartState();
-        
-        for (char symbol : input.toCharArray()) {
-            if (!transitionFunction.containsKey(current) || 
-                !transitionFunction.get(current).containsKey(symbol)) {
-                return false;  // No transition defined
-            }
-            current = transitionFunction.get(current).get(symbol);
-        }
-        
-        return getAcceptStates().contains(current);
+    public DFA toDFA() {
+        return this;
     }
     
+    /**
+     * Optimized accepts for DFA - uses single state instead of set
+     * @param input string to test
+     * @return true if accepted, false otherwise
+     */
     @Override
-    public boolean deterministic() {
-        return true;  // DFAs are always deterministic
+    public boolean accepts(String input) {
+        State currentState = getStartState();
+        
+        if (currentState == null) {
+            return false;
+        }
+        
+        // process each character
+        for (char symbol : input.toCharArray()) {
+            State nextState = null;
+            
+            // find transition from current state on this symbol
+            for (Transition t : getTransitions()) {
+                if (t.getFromState().equals(currentState) && 
+                    t.getSymbol() == symbol) {
+                    nextState = t.getToState();
+                    break;
+                }
+            }
+            
+            // if no transition found, reject
+            if (nextState == null) {
+                return false;
+            }
+            
+            currentState = nextState;
+        }
+        
+        // check if final state is accepting
+        return getAcceptStates().contains(currentState);
     }
 }

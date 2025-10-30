@@ -23,7 +23,7 @@ public class Transition {
     }
 
     public boolean isEpsilon() {
-        return symbol == 'ε';
+        return symbol == 'ε' || symbol == '\u03B5';
     }
 
     @Override

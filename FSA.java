@@ -7,12 +7,14 @@ import java.util.Stack;
  * Contains, states, transitions, start state, accept states, and alphabet
  * Can be used as NFA or DFA
  */
-public class FSA {
-    private Set<State> states; // all states in the automata
-    private Set<Transition> transitions; // all transitions between states
-    private State startState; // start state
-    private Set<State> acceptStates; // set of accepting states
-    private Set<Character> alphabet; // input alphabet (excluding epsilon)
+public abstract class FSA {
+    public static final char EPSILON = 'ε';
+    
+    private Set<State> states;
+    private Set<Transition> transitions;
+    private State startState;
+    private Set<State> acceptStates;
+    private Set<Character> alphabet;
 
     // constructs empty FSA with no states or transitions
     public FSA() {
@@ -55,14 +57,14 @@ public class FSA {
         State to = findStatebyId(toId);
 
         if (from == null || to == null) {
-            System.out.println("Error: States not found.");
+            throw new IllegalArgumentException("Error: States not found. From: " + fromId + ", To: " + toId);
         }
 
         Transition t = new Transition(from, to, symbol);
         transitions.add(t);
 
         // add symbol to alphabet if not epsilon
-        if (!t.isEpsilon()) {
+        if (!t.isEpsilon() && symbol != EPSILON) {
             alphabet.add(symbol);
         }
     }
@@ -131,13 +133,18 @@ public class FSA {
     public Set<State> next(State state, char symbol) {
         Set<State> result = new HashSet<>();
         
-        // find all transitions from this state with the given symbol
-        for (Transition t : transitions) {
-            if (t.getFromState().equals(state) && 
-                !t.isEpsilon() && 
-                t.getSymbol() == symbol) {
-                // add the closure of the destination state
-                result.addAll(closure(t.getToState()));
+        // get the epsilon closure of the starting state
+        Set<State> startClosure = closure(state);
+        
+        // find all transitions from states in the closure with the given symbol
+        for (State s : startClosure) {
+            for (Transition t : transitions) {
+                if (t.getFromState().equals(s) && 
+                    !t.isEpsilon() && 
+                    t.getSymbol() == symbol) {
+                    // add the closure of the destination state
+                    result.addAll(closure(t.getToState()));
+                }
             }
         }
         
@@ -178,9 +185,7 @@ public class FSA {
      * Gets all methods and puts them into the automata.
      */
 
-    public DFA toDFA() {
-        return null;
-    }
+    public abstract DFA toDFA();
 
     public Set<State> getStates() {
         return states;
