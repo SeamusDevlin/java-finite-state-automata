@@ -136,7 +136,7 @@ public class Main {
         testAccepts(dfa, "", false);
     }
     
-    // tests standalone DFA implementation
+    // tests DFA implementation
     private static void testDFA() {
         DFA dfa = new DFA();
         
